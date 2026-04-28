@@ -14,9 +14,15 @@ if not DATABASE_URL:
     )
 # PostgreSQL for Vercel production
 else:
-    # Handle Vercel Postgres connection string format
     SQLALCHEMY_DATABASE_URL = DATABASE_URL
-    engine = create_engine(DATABASE_URL, pool_pre_ping=True)
+    engine = create_engine(
+        DATABASE_URL,
+        pool_pre_ping=True,
+        pool_size=1,
+        max_overflow=0,
+        pool_recycle=30,
+        connect_args={"connect_timeout": 10}
+    )
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
