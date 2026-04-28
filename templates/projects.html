@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+{% block title %}Projects{% endblock %}
+{% block content %}
+<nav class="border-b border-gray-800 bg-dark-900/80 backdrop-blur-sm sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between gap-2">
+        <div class="flex items-center gap-2 sm:gap-3">
+            <div class="w-7 h-7 sm:w-8 sm:h-8 rounded bg-cyber-500/20 border border-cyber-500/30 flex items-center justify-center shrink-0">
+                <svg class="w-4 h-4 sm:w-5 sm:h-5 text-cyber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2C9.5 2 7 4 7 7c0 1.5.5 2.8 1.2 3.8L6 13l-2.5 1 .5 2.5 3-1.5L9 20h6l2-5 3 1.5.5-2.5L18 13l-2.2-2.2c.7-1 1.2-2.3 1.2-3.8 0-3-2.5-5-5-5zM9.5 7a1.5 1.5 0 110 3 1.5 1.5 0 010-3zM14.5 7a1.5 1.5 0 110 3 1.5 1.5 0 010-3z"/>
+                </svg>
+            </div>
+            <span class="font-mono text-base sm:text-lg font-bold text-white nav-logo-text">VAPT<span class="text-cyber-400">Manager</span></span>
+            <span class="text-gray-600 hidden sm:block">/</span>
+            <span class="font-mono text-gray-400 hidden sm:block text-sm">Projects</span>
+        </div>
+
+        <!-- Desktop Nav -->
+        <div class="desktop-nav flex items-center gap-4">
+            <a href="/dashboard" class="text-gray-400 hover:text-white transition-colors text-sm font-mono">&#8592; Dashboard</a>
+            <a href="/projects" class="text-white hover:text-white transition-colors text-sm font-mono">PROJECTS</a>
+            <a href="/users" class="text-gray-400 hover:text-white transition-colors text-sm font-mono">USERS</a>
+        </div>
+
+        <!-- Hamburger Button -->
+        <button id="hamburger-btn" onclick="toggleMobileMenu()" class="hamburger-btn hidden items-center justify-center w-9 h-9 rounded-lg border border-gray-700 hover:border-cyber-500/50 hover:bg-cyber-500/10 transition-all shrink-0">
+            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+            </svg>
+        </button>
+    </div>
+
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="mobile-menu flex-col border-t border-gray-800 px-4 py-3 gap-2 bg-dark-900/95">
+        <a href="/dashboard" class="text-gray-400 hover:text-white font-mono text-sm py-2 border-b border-gray-800">&#8592; Dashboard</a>
+        <a href="/projects" class="text-white font-mono text-sm py-2 border-b border-gray-800">Projects</a>
+        <a href="/users" class="text-gray-400 hover:text-white font-mono text-sm py-2 border-b border-gray-800">Users</a>
+        <a href="/login" onclick="localStorage.removeItem('token')" class="text-red-400 hover:text-red-300 font-mono text-sm py-2">Logout</a>
+    </div>
+</nav>
+
+<main class="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 sm:mb-8">
+        <div>
+            <h1 class="text-2xl sm:text-3xl font-bold text-white font-mono tracking-tight">VAPT Projects</h1>
+            <p class="text-gray-500 mt-1 text-sm">Manage all penetration testing projects</p>
+        </div>
+        <button onclick="showCreateModal()" class="bg-cyber-500 hover:bg-cyber-400 text-dark-900 font-bold py-3 px-6 rounded-lg transition-all font-mono text-sm glow-green w-full sm:w-auto text-center">
+            + NEW PROJECT
+        </button>
+    </div>
+
+    <div id="projects-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6"></div>
+    <div id="empty-state" class="hidden text-center py-16">
+        <div class="text-gray-600 font-mono text-lg mb-2">No projects yet</div>
+        <div class="text-gray-700 text-sm mb-4">Create your first VAPT project to get started</div>
+        <button onclick="showCreateModal()" class="text-cyber-400 hover:text-cyber-300 font-mono text-sm">+ Create Project</button>
+    </div>
+</main>
+
+<!-- Create Project Modal -->
+<div id="create-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+    <div class="bg-dark-800 border border-gray-700 rounded-2xl w-full max-w-lg p-8">
+        <h2 class="text-xl font-bold text-white font-mono mb-6">New VAPT Project</h2>
+        <form id="createForm" class="space-y-4">
+            <div>
+                <label class="block text-xs font-mono text-gray-500 uppercase tracking-wider mb-2">Project Name *</label>
+                <input type="text" name="name" required class="w-full bg-dark-900 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-cyber-500 font-mono text-sm">
+            </div>
+            <div>
+                <label class="block text-xs font-mono text-gray-500 uppercase tracking-wider mb-2">Nama Vendor</label>
+                <input type="text" name="vendor_name" placeholder="e.g., PT Bank Kalimantan Barat" class="w-full bg-dark-900 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-cyber-500 font-mono text-sm">
+            </div>
+            <div>
+                <label class="block text-xs font-mono text-gray-500 uppercase tracking-wider mb-2">Scope</label>
+                <input type="text" name="scope" placeholder="e.g., Internet Banking, Mobile App" class="w-full bg-dark-900 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-cyber-500 font-mono text-sm">
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-mono text-gray-500 uppercase tracking-wider mb-2">Start Date *</label>
+                    <input type="date" name="start_date" required class="w-full bg-dark-900 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-cyber-500 font-mono text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-mono text-gray-500 uppercase tracking-wider mb-2">End Date *</label>
+                    <input type="date" name="end_date" required class="w-full bg-dark-900 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-cyber-500 font-mono text-sm">
+                </div>
+            </div>
+            <div>
+                <label class="block text-xs font-mono text-gray-500 uppercase tracking-wider mb-2">Description</label>
+                <textarea name="description" rows="3" class="w-full bg-dark-900 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-cyber-500 font-mono text-sm resize-none"></textarea>
+            </div>
+            <div class="flex gap-3 pt-2">
+                <button type="button" onclick="hideCreateModal()" class="flex-1 border border-gray-700 text-gray-400 py-3 rounded-lg hover:bg-dark-700 transition-all font-mono text-sm">CANCEL</button>
+                <button type="submit" class="flex-1 bg-cyber-500 hover:bg-cyber-400 text-dark-900 font-bold py-3 rounded-lg transition-all font-mono text-sm">CREATE</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+async function loadProjects() {
+    const projects = await api("/projects");
+    const grid = document.getElementById("projects-grid");
+    grid.innerHTML = "";
+
+    if (projects.length === 0) {
+        document.getElementById("empty-state").classList.remove("hidden");
+        return;
+    }
+
+    projects.forEach((p, i) => {
+        const findings = p.findings || [];
+        const criticalCount = findings.filter(f => f.severity === 'critical').length;
+        const highCount = findings.filter(f => f.severity === 'high').length;
+
+        const card = document.createElement("div");
+        card.className = "bg-dark-800 border border-gray-800 rounded-xl p-6 hover:border-cyber-500/30 transition-all animate-in";
+        card.style.animationDelay = `${i * 0.05}s`;
+        card.innerHTML = `
+            <div class="flex items-start justify-between mb-4">
+                <div class="flex-1">
+                    <h3 class="font-mono font-bold text-white text-lg leading-tight">${p.name}</h3>
+                    ${p.vendor_name ? `<p class="text-cyber-400 text-xs mt-0.5 font-mono">${p.vendor_name}</p>` : ''}
+                    <p class="text-gray-500 text-xs mt-1 font-mono">${p.scope || 'No scope'}</p>
+                </div>
+                <span class="px-2.5 py-1 rounded-full text-xs font-mono font-semibold ${statusBadge(p.status)} ml-3 shrink-0">
+                    ${p.status.replace('_',' ').toUpperCase()}
+                </span>
+            </div>
+
+            <div class="space-y-2 mb-5">
+                <div class="flex items-center gap-2 text-gray-400 text-sm font-mono">
+                    <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                    <span>${p.start_date} → ${p.end_date}</span>
+                </div>
+            </div>
+
+            <div class="flex gap-2 mb-5 flex-wrap">
+                ${criticalCount > 0 ? `<span class="px-2.5 py-1 rounded text-xs font-mono bg-red-900/50 text-red-400 border border-red-800">${criticalCount} Critical</span>` : ''}
+                ${highCount > 0 ? `<span class="px-2.5 py-1 rounded text-xs font-mono bg-orange-900/50 text-orange-400 border border-orange-800">${highCount} High</span>` : ''}
+                <span class="px-2.5 py-1 rounded text-xs font-mono bg-dark-700 text-gray-400 border border-gray-700">${findings.length} Total</span>
+            </div>
+
+            <a href="/projects/${p.id}" class="block w-full text-center border border-cyber-500/30 text-cyber-400 hover:bg-cyber-500/10 py-2.5 rounded-lg transition-all font-mono text-sm">
+                View Details →
+            </a>
+        `;
+        grid.appendChild(card);
+    });
+}
+
+function showCreateModal() {
+    document.getElementById("create-modal").classList.remove("hidden");
+    document.getElementById("create-modal").classList.add("flex");
+}
+function hideCreateModal() {
+    document.getElementById("create-modal").classList.add("hidden");
+    document.getElementById("create-modal").classList.remove("flex");
+}
+
+document.getElementById("createForm").onsubmit = async (e) => {
+    e.preventDefault();
+    const data = new FormData(e.target);
+    try {
+        await api("/projects/", {
+            method: "POST",
+            body: JSON.stringify({
+                name: data.get("name"),
+                vendor_name: data.get("vendor_name") || null,
+                scope: data.get("scope"),
+                start_date: data.get("start_date"),
+                end_date: data.get("end_date"),
+                description: data.get("description"),
+                status: "PROPOSAL"
+            })
+        });
+        hideCreateModal();
+        loadProjects();
+    } catch(err) {
+        alert("Failed to create project: " + err.message);
+    }
+};
+
+loadProjects();
+</script>
+{% endblock %}

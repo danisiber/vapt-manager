@@ -1,0 +1,38 @@
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Virtual environment
+venv/
+.venv/
+env/
+.env
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyc
+.pytest_cache/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Secrets (move to .env for production)
+# SECRET_KEY=
+# DATABASE_URL=
+
+# Vercel / Deployment
+.vercel/
+dist/
+build/
+
+# Logs
+*.log

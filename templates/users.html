@@ -1,0 +1,232 @@
+{% extends "base.html" %}
+{% block title %}User Management{% endblock %}
+{% block content %}
+<nav class="border-b border-gray-800 bg-dark-900/80 backdrop-blur-sm sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between gap-2">
+        <div class="flex items-center gap-2 sm:gap-3">
+            <div class="w-7 h-7 sm:w-8 sm:h-8 rounded bg-cyber-500/20 border border-cyber-500/30 flex items-center justify-center shrink-0">
+                <svg class="w-4 h-4 sm:w-5 sm:h-5 text-cyber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2C9.5 2 7 4 7 7c0 1.5.5 2.8 1.2 3.8L6 13l-2.5 1 .5 2.5 3-1.5L9 20h6l2-5 3 1.5.5-2.5L18 13l-2.2-2.2c.7-1 1.2-2.3 1.2-3.8 0-3-2.5-5-5-5zM9.5 7a1.5 1.5 0 110 3 1.5 1.5 0 010-3zM14.5 7a1.5 1.5 0 110 3 1.5 1.5 0 010-3z"/>
+                </svg>
+            </div>
+            <span class="font-mono text-base sm:text-lg font-bold text-white nav-logo-text">VAPT<span class="text-cyber-400">Manager</span></span>
+        </div>
+        <div class="desktop-nav flex items-center gap-3 sm:gap-4">
+            <span id="user-badge" class="text-gray-500 text-xs sm:text-sm font-mono hidden md:block"></span>
+            <a href="/dashboard" class="text-gray-400 hover:text-white transition-colors text-xs sm:text-sm font-mono">DASHBOARD</a>
+            <a href="/projects" class="text-gray-400 hover:text-white transition-colors text-xs sm:text-sm font-mono">PROJECTS</a>
+            <a href="/login" onclick="localStorage.removeItem('token')" class="text-gray-400 hover:text-red-400 transition-colors text-xs sm:text-sm font-mono">LOGOUT</a>
+        </div>
+    </div>
+</nav>
+
+<div class="max-w-7xl mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-8">
+        <div>
+            <h1 class="text-2xl font-mono font-bold text-white">User Management</h1>
+            <p class="text-gray-500 text-sm font-mono mt-1">Kelola akun pengguna sistem</p>
+        </div>
+        <div id="role-badge" class="hidden px-3 py-1 rounded text-xs font-mono font-bold"></div>
+    </div>
+
+    <!-- Change Password (ALL users) -->
+    <div class="bg-dark-800 border border-gray-800 rounded-xl p-6 mb-6">
+        <h2 class="text-sm font-mono font-bold text-white uppercase tracking-wider mb-4">Ubah Password</h2>
+        <form id="changePwForm" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+                <label class="block text-xs text-gray-500 font-mono uppercase mb-1">Password Lama</label>
+                <input type="password" name="old_password" required class="w-full bg-dark-900 border border-gray-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-cyber-500">
+            </div>
+            <div>
+                <label class="block text-xs text-gray-500 font-mono uppercase mb-1">Password Baru</label>
+                <input type="password" name="new_password" required minlength="6" class="w-full bg-dark-900 border border-gray-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-cyber-500">
+            </div>
+            <div class="flex items-end">
+                <button type="submit" class="w-full bg-cyber-500 hover:bg-cyber-400 text-dark-900 font-bold py-2 rounded-lg font-mono text-sm transition-colors">UPDATE PASSWORD</button>
+            </div>
+        </form>
+        <p id="pw-error" class="text-red-400 text-xs font-mono mt-2 hidden"></p>
+        <p id="pw-success" class="text-green-400 text-xs font-mono mt-2 hidden"></p>
+    </div>
+
+    <!-- User List (Admin only) -->
+    <div id="admin-panel" class="hidden">
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="text-sm font-mono font-bold text-white uppercase tracking-wider">Daftar User</h2>
+            <button onclick="showAddUserModal()" class="bg-cyber-500 hover:bg-cyber-400 text-dark-900 font-bold px-4 py-2 rounded-lg font-mono text-xs transition-colors">+ TAMBAH USER</button>
+        </div>
+        <div class="bg-dark-800 border border-gray-800 rounded-xl overflow-hidden">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="border-b border-gray-800">
+                        <th class="text-left text-xs font-mono text-gray-500 uppercase tracking-wider px-4 py-3">Username</th>
+                        <th class="text-left text-xs font-mono text-gray-500 uppercase tracking-wider px-4 py-3">Email</th>
+                        <th class="text-left text-xs font-mono text-gray-500 uppercase tracking-wider px-4 py-3">Role</th>
+                        <th class="text-left text-xs font-mono text-gray-500 uppercase tracking-wider px-4 py-3">Status</th>
+                        <th class="text-right text-xs font-mono text-gray-500 uppercase tracking-wider px-4 py-3">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="users-tbody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Non-admin message -->
+    <div id="non-admin-msg" class="hidden bg-dark-800 border border-gray-800 rounded-xl p-6 text-center">
+        <p class="text-gray-400 text-sm font-mono">Hanya admin yang bisa mengelola user. Anda bisa mengubah password di form di atas.</p>
+    </div>
+</div>
+
+<!-- Add User Modal -->
+<div id="add-user-modal" class="hidden fixed inset-0 z-50 items-center justify-center bg-black/60 backdrop-blur-sm">
+    <div class="bg-dark-800 border border-gray-800 rounded-xl p-6 w-full max-w-md mx-4">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-white font-mono font-bold">Tambah User Baru</h3>
+            <button onclick="hideAddUserModal()" class="text-gray-500 hover:text-white">&times;</button>
+        </div>
+        <form id="addUserForm" class="space-y-4">
+            <div>
+                <label class="block text-xs text-gray-500 font-mono uppercase mb-1">Username</label>
+                <input type="text" name="username" required class="w-full bg-dark-900 border border-gray-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-cyber-500">
+            </div>
+            <div>
+                <label class="block text-xs text-gray-500 font-mono uppercase mb-1">Email</label>
+                <input type="email" name="email" required class="w-full bg-dark-900 border border-gray-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-cyber-500">
+            </div>
+            <div>
+                <label class="block text-xs text-gray-500 font-mono uppercase mb-1">Password</label>
+                <input type="password" name="password" required minlength="6" class="w-full bg-dark-900 border border-gray-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-cyber-500">
+            </div>
+            <div>
+                <label class="block text-xs text-gray-500 font-mono uppercase mb-1">Role</label>
+                <select name="role" class="w-full bg-dark-900 border border-gray-700 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-cyber-500">
+                    <option value="pentester">Pentester</option>
+                    <option value="viewer">Viewer</option>
+                    <option value="admin">Admin</option>
+                </select>
+            </div>
+            <div class="flex gap-2 pt-2">
+                <button type="submit" class="flex-1 bg-cyber-500 hover:bg-cyber-400 text-dark-900 font-bold py-2 rounded-lg font-mono text-sm">SIMPAN</button>
+                <button type="button" onclick="hideAddUserModal()" class="flex-1 border border-gray-700 hover:border-gray-600 text-gray-400 py-2 rounded-lg font-mono text-sm">BATAL</button>
+            </div>
+            <p id="add-error" class="text-red-400 text-xs font-mono hidden"></p>
+        </form>
+    </div>
+</div>
+
+<script>
+const API = '/api/users';
+let currentUser = null;
+let currentRole = null;
+
+async function api(url, options = {}) {
+    const token = localStorage.getItem('token');
+    const headers = { 'Content-Type': 'application/json', ...(token ? { 'Authorization': `Bearer ${token}` } : {}) };
+    const res = await fetch(url, { ...options, headers: { ...headers, ...options.headers } });
+    if (res.status === 401) { window.location.href = '/login'; throw new Error('Unauthorized'); }
+    if (res.status === 403) { document.getElementById('admin-panel').classList.add('hidden'); document.getElementById('non-admin-msg').classList.remove('hidden'); throw new Error('Forbidden'); }
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || 'Error');
+    return data;
+}
+
+async function init() {
+    try {
+        currentUser = await api('/auth/me');
+        currentRole = currentUser.role;
+        document.getElementById('user-badge').textContent = `@${currentUser.username}`;
+        const badge = document.getElementById('role-badge');
+        badge.classList.remove('hidden');
+        badge.className = 'px-3 py-1 rounded text-xs font-mono font-bold ' + (currentRole === 'admin' ? 'bg-red-500/20 text-red-400 border border-red-500/30' : 'bg-cyber-500/20 text-cyber-400 border border-cyber-500/30');
+        badge.textContent = currentRole.toUpperCase();
+        if (currentRole === 'admin') {
+            document.getElementById('admin-panel').classList.remove('hidden');
+            loadUsers();
+        } else {
+            document.getElementById('non-admin-msg').classList.remove('hidden');
+        }
+    } catch (e) {
+        window.location.href = '/login';
+    }
+}
+
+async function loadUsers() {
+    try {
+        const users = await api(API);
+        const tbody = document.getElementById('users-tbody');
+        tbody.innerHTML = '';
+        users.forEach(u => {
+            const roleColors = { admin: 'text-red-400', pentester: 'text-cyber-400', viewer: 'text-gray-400', user: 'text-gray-400' };
+            const statusColor = u.is_active ? 'text-green-400' : 'text-red-400';
+            const statusText = u.is_active ? 'Active' : 'Inactive';
+            tbody.innerHTML += `
+            <tr class="border-b border-gray-800/50 hover:bg-dark-700/50 transition-colors">
+                <td class="px-4 py-3 font-mono text-white text-xs">${u.username}</td>
+                <td class="px-4 py-3 font-mono text-gray-400 text-xs">${u.email}</td>
+                <td class="px-4 py-3 font-mono ${roleColors[u.role] || 'text-gray-400'} text-xs uppercase">${u.role}</td>
+                <td class="px-4 py-3 font-mono ${statusColor} text-xs">${statusText}</td>
+                <td class="px-4 py-3 text-right">
+                    ${u.username !== 'admin' ? `<button onclick="deleteUser(${u.id}, '${u.username}')" class="text-red-400 hover:text-red-300 font-mono text-xs border border-red-900/50 hover:border-red-700 px-3 py-1 rounded transition-colors">HAPUS</button>` : '<span class="text-gray-600 font-mono text-xs">—</span>'}
+                </td>
+            </tr>`;
+        });
+    } catch (e) { console.error(e); }
+}
+
+function showAddUserModal() {
+    document.getElementById('add-user-modal').classList.remove('hidden');
+    document.getElementById('add-user-modal').classList.add('flex');
+    document.getElementById('add-error').classList.add('hidden');
+}
+function hideAddUserModal() {
+    document.getElementById('add-user-modal').classList.add('hidden');
+    document.getElementById('add-user-modal').classList.remove('flex');
+    document.getElementById('addUserForm').reset();
+}
+
+document.getElementById('addUserForm').onsubmit = async (e) => {
+    e.preventDefault();
+    const fd = new FormData(e.target);
+    const err = document.getElementById('add-error');
+    try {
+        await api(API, { method: 'POST', body: JSON.stringify({
+            username: fd.get('username'), email: fd.get('email'),
+            password: fd.get('password'), role: fd.get('role')
+        })});
+        hideAddUserModal();
+        loadUsers();
+    } catch (e) {
+        err.textContent = e.message; err.classList.remove('hidden');
+    }
+};
+
+async function deleteUser(id, username) {
+    if (!confirm(`Hapus user "${username}"?`)) return;
+    try {
+        await api(`${API}/${id}`, { method: 'DELETE' });
+        loadUsers();
+    } catch (e) { alert('Gagal: ' + e.message); }
+}
+
+document.getElementById('changePwForm').onsubmit = async (e) => {
+    e.preventDefault();
+    const fd = new FormData(e.target);
+    const err = document.getElementById('pw-error');
+    const suc = document.getElementById('pw-success');
+    err.classList.add('hidden'); suc.classList.add('hidden');
+    try {
+        await api(`${API}/change-password`, {
+            method: 'POST',
+            body: JSON.stringify({ old_password: fd.get('old_password'), new_password: fd.get('new_password') })
+        });
+        suc.textContent = 'Password berhasil diubah!'; suc.classList.remove('hidden');
+        e.target.reset();
+    } catch (e) {
+        err.textContent = e.message; err.classList.remove('hidden');
+    }
+};
+
+init();
+</script>
+{% endblock %}

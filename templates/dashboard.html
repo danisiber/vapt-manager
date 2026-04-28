@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<nav class="border-b border-gray-800 bg-dark-900/80 backdrop-blur-sm sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between gap-2">
+        <div class="flex items-center gap-2 sm:gap-3">
+            <div class="w-7 h-7 sm:w-8 sm:h-8 rounded bg-cyber-500/20 border border-cyber-500/30 flex items-center justify-center shrink-0">
+                <svg class="w-4 h-4 sm:w-5 sm:h-5 text-cyber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2C9.5 2 7 4 7 7c0 1.5.5 2.8 1.2 3.8L6 13l-2.5 1 .5 2.5 3-1.5L9 20h6l2-5 3 1.5.5-2.5L18 13l-2.2-2.2c.7-1 1.2-2.3 1.2-3.8 0-3-2.5-5-5-5zM9.5 7a1.5 1.5 0 110 3 1.5 1.5 0 010-3zM14.5 7a1.5 1.5 0 110 3 1.5 1.5 0 010-3z"/>
+                </svg>
+            </div>
+            <span class="font-mono text-base sm:text-lg font-bold text-white nav-logo-text">VAPT<span class="text-cyber-400">Manager</span></span>
+        </div>
+
+        <!-- Desktop Nav -->
+        <div class="desktop-nav flex items-center gap-3 sm:gap-4">
+            <a href="/dashboard" class="text-gray-400 hover:text-white transition-colors text-xs sm:text-sm font-mono">DASHBOARD</a>
+            <a href="/projects" class="text-gray-400 hover:text-white transition-colors text-xs sm:text-sm font-mono">PROJECTS</a>
+            <a href="/users" class="text-gray-400 hover:text-white transition-colors text-xs sm:text-sm font-mono">USERS</a>
+            <a href="/login" onclick="localStorage.removeItem('token')" class="text-gray-400 hover:text-red-400 transition-colors text-xs sm:text-sm font-mono">LOGOUT</a>
+        </div>
+
+        <!-- Hamburger Button -->
+        <button id="hamburger-btn" onclick="toggleMobileMenu()" class="hamburger-btn hidden items-center justify-center w-9 h-9 rounded-lg border border-gray-700 hover:border-cyber-500/50 hover:bg-cyber-500/10 transition-all shrink-0">
+            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+            </svg>
+        </button>
+    </div>
+
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="mobile-menu flex-col border-t border-gray-800 px-4 py-3 gap-2 bg-dark-900/95">
+        <a href="/dashboard" class="text-white font-mono text-sm py-2 border-b border-gray-800">Dashboard</a>
+            <a href="/projects" class="text-gray-400 hover:text-white font-mono text-sm py-2 border-b border-gray-800">Projects</a>
+            <a href="/users" class="text-gray-400 hover:text-white font-mono text-sm py-2 border-b border-gray-800">Users</a>
+            <a href="/login" onclick="localStorage.removeItem('token')" class="text-red-400 hover:text-red-300 font-mono text-sm py-2">Logout</a>
+    </div>
+</nav>
+
+<main class="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+    <div class="mb-6 sm:mb-8 animate-in">
+        <h1 class="text-2xl sm:text-3xl font-bold text-white font-mono tracking-tight">VAPT Project Management</h1>
+        <p class="text-gray-500 mt-1 font-sans text-sm sm:text-base">VAPT Project Overview</p>
+    </div>
+
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 mb-6 sm:mb-8">
+        <div class="bg-dark-800 border border-gray-800 rounded-xl p-5 hover:border-cyber-500/30 transition-all animate-in" style="animation-delay:0.05s">
+            <div class="text-gray-500 text-xs font-mono uppercase tracking-wider mb-2">Total Project</div>
+            <div id="stat-projects" class="text-3xl font-bold font-mono text-white">—</div>
+        </div>
+        <div class="bg-dark-800 border border-gray-800 rounded-xl p-5 hover:border-cyber-500/30 transition-all animate-in" style="animation-delay:0.1s">
+            <div class="text-gray-500 text-xs font-mono uppercase tracking-wider mb-2">Total Findings</div>
+            <div id="stat-findings" class="text-3xl font-bold font-mono text-white">—</div>
+        </div>
+        <div class="bg-dark-800 border border-gray-800 rounded-xl p-5 hover:border-red-500/30 transition-all animate-in" style="animation-delay:0.15s">
+            <div class="text-gray-500 text-xs font-mono uppercase tracking-wider mb-2">Critical</div>
+            <div id="stat-critical" class="text-3xl font-bold font-mono text-red-400">—</div>
+        </div>
+        <div class="bg-dark-800 border border-gray-800 rounded-xl p-5 hover:border-orange-500/30 transition-all animate-in" style="animation-delay:0.2s">
+            <div class="text-gray-500 text-xs font-mono uppercase tracking-wider mb-2">High</div>
+            <div id="stat-high" class="text-3xl font-bold font-mono text-orange-400">—</div>
+        </div>
+        <div class="bg-dark-800 border border-gray-800 rounded-xl p-5 hover:border-cyber-500/30 transition-all animate-in" style="animation-delay:0.25s">
+            <div class="text-gray-500 text-xs font-mono uppercase tracking-wider mb-2">Completed</div>
+            <div id="stat-completed" class="text-3xl font-bold font-mono text-cyber-400">—</div>
+        </div>
+    </div>
+
+    <div class="bg-dark-800 border border-gray-800 rounded-xl overflow-hidden animate-in" style="animation-delay:0.3s">
+        <div class="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-800 flex items-center justify-between">
+            <h2 class="font-mono font-semibold text-white text-sm sm:text-base">Recent VAPT Projects</h2>
+            <a href="/projects" class="text-cyber-400 hover:text-cyber-300 text-xs sm:text-sm font-mono transition-colors">View All →</a>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-dark-900">
+                    <tr>
+                        <th class="px-4 sm:px-6 py-3 text-left text-xs font-mono font-semibold text-gray-500 uppercase tracking-wider">Project</th>
+                        <th class="px-4 sm:px-6 py-3 text-left text-xs font-mono font-semibold text-gray-500 uppercase tracking-wider hidden sm:table-cell">Periode</th>
+                        <th class="px-4 sm:px-6 py-3 text-left text-xs font-mono font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                        <th class="px-4 sm:px-6 py-3 text-left text-xs font-mono font-semibold text-gray-500 uppercase tracking-wider">Findings</th>
+                        <th class="px-4 sm:px-6 py-3 text-left text-xs font-mono font-semibold text-gray-500 uppercase tracking-wider">Action</th>
+                    </tr>
+                </thead>
+                <tbody id="projects-tbody" class="divide-y divide-gray-800"></tbody>
+            </table>
+        </div>
+        <div id="empty-state" class="hidden px-6 py-12 text-center">
+            <div class="text-gray-600 font-mono">No projects found. Create your first VAPT project.</div>
+            <a href="/projects" class="inline-block mt-4 text-cyber-400 hover:text-cyber-300 font-mono text-sm">Go to Projects →</a>
+        </div>
+    </div>
+</main>
+
+<script>
+async function loadDashboard() {
+    try {
+        const projects = await api("/projects");
+
+        let totalFindings = 0, critical = 0, high = 0, completed = 0;
+        projects.forEach(p => {
+            const findings = p.findings || [];
+            totalFindings += findings.length;
+            findings.forEach(f => {
+                if (f.severity === 'critical') critical++;
+                if (f.severity === 'high') high++;
+            });
+            if (p.status === 'completed') completed++;
+        });
+
+        document.getElementById("stat-projects").textContent = projects.length;
+        document.getElementById("stat-findings").textContent = totalFindings;
+        document.getElementById("stat-critical").textContent = critical;
+        document.getElementById("stat-high").textContent = high;
+        document.getElementById("stat-completed").textContent = completed;
+
+        const tbody = document.getElementById("projects-tbody");
+        if (projects.length === 0) {
+            document.getElementById("empty-state").classList.remove("hidden");
+            return;
+        }
+
+        projects.slice(0, 8).forEach((p, i) => {
+            const findings = p.findings || [];
+            const criticalCount = findings.filter(f => f.severity === 'critical').length;
+            const highCount = findings.filter(f => f.severity === 'high').length;
+
+            const row = document.createElement("tr");
+            row.className = "hover:bg-dark-700/50 transition-colors";
+            row.innerHTML = `
+                <td class="px-4 sm:px-6 py-3 sm:py-4">
+                    <div class="font-semibold text-white font-mono text-sm">${p.name}</div>
+                    <div class="text-gray-500 text-xs mt-0.5 hidden sm:block">${p.scope || 'No scope defined'}</div>
+                </td>
+                <td class="px-4 sm:px-6 py-3 sm:py-4 hidden sm:table-cell">
+                    <div class="text-gray-300 text-xs sm:text-sm font-mono">${p.start_date}</div>
+                    <div class="text-gray-600 text-xs hidden sm:block">to ${p.end_date}</div>
+                </td>
+                <td class="px-4 sm:px-6 py-3 sm:py-4">
+                    <span class="px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full text-xs font-mono font-semibold ${statusBadge(p.status)}">
+                        ${p.status.replace('_',' ').toUpperCase()}
+                    </span>
+                </td>
+                <td class="px-4 sm:px-6 py-3 sm:py-4">
+                    <div class="flex gap-1 sm:gap-2 flex-wrap">
+                        ${criticalCount > 0 ? `<span class="px-1.5 py-0.5 sm:px-2 sm:py-0.5 rounded text-xs font-mono bg-red-900/50 text-red-400 border border-red-800">${criticalCount}C</span>` : ''}
+                        ${highCount > 0 ? `<span class="px-1.5 py-0.5 sm:px-2 sm:py-0.5 rounded text-xs font-mono bg-orange-900/50 text-orange-400 border border-orange-800">${highCount}H</span>` : ''}
+                        <span class="px-1.5 py-0.5 sm:px-2 sm:py-0.5 rounded text-xs font-mono bg-dark-700 text-gray-400 border border-gray-700">${findings.length}</span>
+                    </div>
+                </td>
+                <td class="px-4 sm:px-6 py-3 sm:py-4">
+                    <a href="/projects/${p.id}" class="text-cyber-400 hover:text-cyber-300 text-xs sm:text-sm font-mono transition-colors">View →</a>
+                </td>
+            `;
+            tbody.appendChild(row);
+        });
+    } catch(err) {
+        console.error("Failed to load dashboard:", err);
+    }
+}
+
+loadDashboard();
+</script>
+{% endblock %}
