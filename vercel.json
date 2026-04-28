@@ -16,9 +16,5 @@
       "dest": "api/index.py"
     }
   ],
-  "env": {
-    "DATABASE_URL": "@vapt_manager_database_url",
-    "SECRET_KEY": "@vapt_manager_secret_key"
-  },
   "regions": ["sin1"]
 }
